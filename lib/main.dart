@@ -4,63 +4,64 @@ void main() {
   runApp(const WaterShopApp());
 }
 
-class WaterShopApp extends StatelessWidget {
+class WaterShopApp extends StatefulWidget {
   const WaterShopApp({super.key});
+
+  @override
+  State<WaterShopApp> createState() => _WaterShopAppState();
+}
+
+class _WaterShopAppState extends State<WaterShopApp> {
+  bool _isDarkMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Clean Water Shop',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        fontFamily: 'Roboto',
+      title: 'Water Shop',
+      theme: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
+      home: WaterShopHomePage(
+        isDarkMode: _isDarkMode,
+        toggleTheme: _toggleTheme,
       ),
-      home: const WaterShopHomePage(),
     );
   }
 }
 
 class WaterShopHomePage extends StatefulWidget {
-  const WaterShopHomePage({super.key});
+  final bool isDarkMode;
+  final VoidCallback toggleTheme;
+
+  const WaterShopHomePage({
+    super.key,
+    required this.isDarkMode,
+    required this.toggleTheme,
+  });
 
   @override
   State<WaterShopHomePage> createState() => _WaterShopHomePageState();
 }
 
 class _WaterShopHomePageState extends State<WaterShopHomePage> {
-  double _tankCapacity = 1000.0; // Liters
-  double _currentWaterLevel = 800.0; // Liters
-  int _totalSales = 0; // Liters
-  double _totalRevenue = 0.0; // Kenyan Shillings
-  double _pricePerLiter = 5.0; // Kenyan Shillings
   AppView _currentView = AppView.overview;
 
-  void _sellWater(double amount) {
-    setState(() {
-      if (_currentWaterLevel >= amount) {
-        _currentWaterLevel -= amount;
-        _totalSales += amount.toInt();
-        _totalRevenue += amount * _pricePerLiter;
-      }
-      _checkWaterLevel();
-    });
-  }
+  // Sensor data (you would update these with real data)
+  double _tankLevel = 75.0; // percentage
+  double _phLevel = 7.2;
+  double _temperature = 22.5; // Celsius
+  double _humidity = 60.0; // percentage
 
-  void _checkWaterLevel() {
-    if (_currentWaterLevel / _tankCapacity <= 0.2) {
-      _refillTank();
-    }
-  }
+  // Tank levels (you would update these with real data)
+  List<double> _tankLevels = [80.0, 65.0, 90.0]; // percentages
 
-  void _refillTank() {
-    setState(() {
-      _currentWaterLevel = _tankCapacity;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tank refilled!')),
-    );
-  }
+  // Sales data (you would update this with real data)
+  int _salesMade = 150;
+  double _revenue = 7500.0;
 
   void _changeView(AppView view) {
     setState(() {
@@ -71,7 +72,6 @@ class _WaterShopHomePageState extends State<WaterShopHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -96,12 +96,20 @@ class _WaterShopHomePageState extends State<WaterShopHomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Good morning!',
+          'Water Shop',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined),
-          onPressed: () {},
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+              onPressed: widget.toggleTheme,
+            ),
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () {},
+            ),
+          ],
         ),
       ],
     );
@@ -142,124 +150,78 @@ class _WaterShopHomePageState extends State<WaterShopHomePage> {
       case AppView.overview:
         return _buildOverviewView();
       case AppView.tank1:
-        return _buildTankView('Tank 1');
+        return _buildTankView('Tank 1', _tankLevels[0]);
       case AppView.tank2:
-        return _buildTankView('Tank 2');
+        return _buildTankView('Tank 2', _tankLevels[1]);
       case AppView.tank3:
-        return _buildTankView('Tank 3');
+        return _buildTankView('Tank 3', _tankLevels[2]);
     }
   }
 
   Widget _buildOverviewView() {
-    return Column(
-      children: [
-        _buildWeatherCard(),
-        const SizedBox(height: 20),
-        _buildWaterLevelsCard(),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSensorDataCard(),
+          const SizedBox(height: 20),
+          _buildWaterLevelsCard(),
+          const SizedBox(height: 20),
+          _buildSalesCard(),
+        ],
+      ),
     );
   }
 
-  Widget _buildTankView(String tankName) {
-    return Column(
-      children: [
-        Text('$tankName Details', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 20),
-        _buildTankLevel(tankName, 0.6, Colors.blue[200]!, Colors.blue),
-        // Add more details specific to each tank here
-      ],
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () => _changeView(AppView.overview),
-          color: _currentView == AppView.overview ? Colors.blue : null,
-        ),
-        IconButton(icon: const Icon(Icons.bar_chart), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.location_on), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
-      ],
-    );
-  }
-
-  Widget _buildWeatherCard() {
+  Widget _buildSensorDataCard() {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Weather', style: Theme.of(context).textTheme.titleMedium),
-                Row(
-                  children: [
-                    const Icon(Icons.cloud, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Text('+25°C', style: Theme.of(context).textTheme.titleMedium),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildWeatherItem(Icons.thermostat, '22°C', 'Water temp'),
-                _buildWeatherItem(Icons.water_drop, '59%', 'Humidity'),
-                _buildWeatherItem(Icons.air, '6 m/s', 'Wind'),
-                _buildWeatherItem(Icons.umbrella, '0 mm', 'Precipitation'),
-              ],
-            ),
+            Text('Sensor Data', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 10),
+            _buildSensorItem(Icons.water, 'Tank Level', '$_tankLevel%'),
+            _buildSensorItem(Icons.science, 'pH Level', '$_phLevel'),
+            _buildSensorItem(Icons.thermostat, 'Temperature', '$_temperature°C'),
+            _buildSensorItem(Icons.water_drop, 'Humidity', '$_humidity%'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildWeatherItem(IconData icon, String value, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.blue),
-        const SizedBox(height: 8),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-      ],
+  Widget _buildSensorItem(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 10),
+          Text(label),
+          const Spacer(),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 
   Widget _buildWaterLevelsCard() {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Water Levels', style: Theme.of(context).textTheme.titleMedium),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Today'),
-                ),
-              ],
-            ),
+            Text('Water Levels', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildTankLevel('Tank 1', 0.3, Colors.red[200]!, Colors.red),
-                _buildTankLevel('Tank 2', 0.6, Colors.green[200]!, Colors.green),
-                _buildTankLevel('Tank 3', 0.9, Colors.blue[200]!, Colors.blue),
+                _buildTankLevel('Tank 1', _tankLevels[0], Colors.blue[200]!, Colors.blue),
+                _buildTankLevel('Tank 2', _tankLevels[1], Colors.green[200]!, Colors.green),
+                _buildTankLevel('Tank 3', _tankLevels[2], Colors.orange[200]!, Colors.orange),
               ],
             ),
           ],
@@ -285,7 +247,7 @@ class _WaterShopHomePageState extends State<WaterShopHomePage> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: FractionallySizedBox(
-                  heightFactor: level,
+                  heightFactor: level / 100,
                   child: Container(
                     decoration: BoxDecoration(
                       color: foregroundColor,
@@ -299,8 +261,69 @@ class _WaterShopHomePageState extends State<WaterShopHomePage> {
         ),
         const SizedBox(height: 8),
         Text(label),
-        Text('${(level * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text('${level.toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildSalesCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Sales', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 10),
+            _buildSalesItem(Icons.shopping_cart, 'Sales Made', '$_salesMade'),
+            _buildSalesItem(Icons.attach_money, 'Revenue', '\$$_revenue'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSalesItem(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon),
+          const SizedBox(width: 10),
+          Text(label),
+          const Spacer(),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTankView(String tankName, double level) {
+    return Column(
+      children: [
+        Text('$tankName Details', style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 20),
+        _buildTankLevel(tankName, level, Colors.blue[200]!, Colors.blue),
+        // Add more details specific to each tank here
+      ],
+    );
+  }
+
+  Widget _buildBottomNavBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () => _changeView(AppView.overview),
+          color: _currentView == AppView.overview ? Colors.blue : null,
+        ),
+        IconButton(icon: const Icon(Icons.bar_chart), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.location_on), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
       ],
     );
   }
 }
+
+enum AppView { overview, tank1, tank2, tank3 }
