@@ -52,13 +52,13 @@ To configure M-Pesa integration:
 1. Obtain API credentials from Safaricom Developer Portal.
 2. Add your credentials to the `lib/config/mpesa_config.dart` file (create if it doesn't exist):
 
-'''
+  ```
 class MpesaConfig {
 static const String consumerKey = 'YOUR_CONSUMER_KEY';
 static const String consumerSecret = 'YOUR_CONSUMER_SECRET';
 // Add other necessary configuration variables
 }
-'''
+  ```
 
 ## Usage
 
