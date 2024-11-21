@@ -45,9 +45,9 @@ For a full list of dependencies, see the `pubspec.yaml` file.
 
 ## Configuration
 
-### M-Pesa Integration
+### Payment Integration
 
-To configure M-Pesa integration:
+To configure Paymnet integration:
 
 1. Obtain API credentials from Safaricom Developer Portal.
 2. Add your payment credentials to the `lib/config/mpesa_config.dart` file (create if it doesn't exist):
@@ -68,7 +68,7 @@ static const String consumerSecret = 'YOUR_CONSUMER_SECRET';
    - Tap the 'New Sale' button.
    - Select whether the customer has a refillable bottle.
    - Choose the water volume.
-   - Enter the customer's M-Pesa number.
+   - Enter the customer's number.
    - Confirm the payment.
 
 3. **View Statistics**:
@@ -101,5 +101,5 @@ Project Link: https://github.com/19bk/water-shop-app
 ## Acknowledgments
 
 - Flutter team for the excellent framework
-- Safaricom for M-Pesa API integration
+- Stripe payment intergration
 - All contributors who have helped shape this project
