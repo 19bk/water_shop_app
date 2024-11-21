@@ -8,7 +8,7 @@ The Water Shop App is a Flutter-based mobile application designed to manage and 
 
 - **Dashboard Overview**: View current water levels in multiple tanks at a glance.
 - **Sales Processing**: Easily process new sales, including options for refillable bottles and different water volumes.
-- **M-Pesa Integration**: Seamless integration with M-Pesa for mobile payments.
+- **Payment- Integration**: Seamless integration with stripe for mobile payments.
 - **Sales Statistics**: Comprehensive sales data visualization with customizable time periods.
 - **Dark Mode Support**: Fully responsive UI that adapts to both light and dark modes.
 
@@ -18,7 +18,7 @@ The Water Shop App is a Flutter-based mobile application designed to manage and 
 
 2. Clone the repository:
    ```
-   git clone https://github.com/yourusername/water-shop-app.git
+   git clone https://github.com/19bk/water-shop-app.git
    ```
 
 3. Navigate to the project directory:
@@ -50,7 +50,7 @@ For a full list of dependencies, see the `pubspec.yaml` file.
 To configure M-Pesa integration:
 
 1. Obtain API credentials from Safaricom Developer Portal.
-2. Add your credentials to the `lib/config/mpesa_config.dart` file (create if it doesn't exist):
+2. Add your payment credentials to the `lib/config/mpesa_config.dart` file (create if it doesn't exist):
 
   ```
 class MpesaConfig {
@@ -94,9 +94,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 For any queries or support, please contact:
 
-Your Name - email@example.com
+Your Name - dotblue67@gmail.com
 
-Project Link: https://github.com/yourusername/water-shop-app
+Project Link: https://github.com/19bk/water-shop-app
 
 ## Acknowledgments
 
